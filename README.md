@@ -14,3 +14,4 @@ I've developed this project for Future Ready Talent Internship. In this particul
 
 Primary Azure Technology: AI + Machine Learning, Azure Cognitive Service, Logic Apps, Text Analytics
 
+DEMO LINK : https://drive.google.com/file/d/1EkEABZijlxdQUB-DnFE7WWMOhmM7joFQ/view?usp=sharing
