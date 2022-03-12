@@ -1,0 +1,117 @@
+{
+    "definition": {
+        "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+        "actions": {
+            "For_each": {
+                "actions": {
+                    "Insert_row": {
+                        "inputs": {
+                            "body": {
+                                "Score": "@{items('For_each')['confidenceScores']}",
+                                "Tweeted_x0020_Text": "@triggerBody()?['TweetText']",
+                                "Tweeted_x0020_by": "@triggerBody()?['UserDetails']?['FullName']"
+                            },
+                            "host": {
+                                "connection": {
+                                    "name": "@parameters('$connections')['googlesheet']['connectionId']"
+                                }
+                            },
+                            "method": "post",
+                            "path": "/datasets/@{encodeURIComponent(encodeURIComponent('15KRE0mbJ81OUB83wo5_z_zr2TdYIVnUifCCMlp5GlNY'))}/tables/@{encodeURIComponent(encodeURIComponent('0'))}/items"
+                        },
+                        "metadata": {
+                            "15KRE0mbJ81OUB83wo5_z_zr2TdYIVnUifCCMlp5GlNY": "/Sentiments"
+                        },
+                        "runAfter": {},
+                        "type": "ApiConnection"
+                    }
+                },
+                "foreach": "@body('Sentiment_(V3.0)')['documents']",
+                "runAfter": {
+                    "Sentiment_(V3.0)": [
+                        "Succeeded"
+                    ]
+                },
+                "type": "Foreach"
+            },
+            "Sentiment_(V3.0)": {
+                "inputs": {
+                    "body": {
+                        "documents": [
+                            {
+                                "id": "tweettext",
+                                "text": "@triggerBody()?['TweetText']"
+                            }
+                        ]
+                    },
+                    "host": {
+                        "connection": {
+                            "name": "@parameters('$connections')['cognitiveservicestextanalytics']['connectionId']"
+                        }
+                    },
+                    "method": "post",
+                    "path": "/text/analytics/v3.0/sentiment"
+                },
+                "runAfter": {},
+                "type": "ApiConnection"
+            }
+        },
+        "contentVersion": "1.0.0.0",
+        "outputs": {},
+        "parameters": {
+            "$connections": {
+                "defaultValue": {},
+                "type": "Object"
+            }
+        },
+        "triggers": {
+            "When_a_new_tweet_is_posted": {
+                "evaluatedRecurrence": {
+                    "frequency": "Second",
+                    "interval": 15,
+                    "timeZone": "India Standard Time"
+                },
+                "inputs": {
+                    "host": {
+                        "connection": {
+                            "name": "@parameters('$connections')['twitter']['connectionId']"
+                        }
+                    },
+                    "method": "get",
+                    "path": "/onnewtweet",
+                    "queries": {
+                        "searchQuery": "#happy , #RussiainvadesUkraine "
+                    }
+                },
+                "recurrence": {
+                    "frequency": "Second",
+                    "interval": 15,
+                    "timeZone": "India Standard Time"
+                },
+                "splitOn": "@triggerBody()?['value']",
+                "type": "ApiConnection"
+            }
+        }
+    },
+    "parameters": {
+        "$connections": {
+            "value": {
+                "cognitiveservicestextanalytics": {
+                    "connectionId": "/subscriptions/c535ef07-abad-498a-a553-5ba74842bafb/resourceGroups/RG-GGI/providers/Microsoft.Web/connections/cognitiveservicestextanalytics",
+                    "connectionName": "cognitiveservicestextanalytics",
+                    "id": "/subscriptions/c535ef07-abad-498a-a553-5ba74842bafb/providers/Microsoft.Web/locations/southeastasia/managedApis/cognitiveservicestextanalytics"
+                },
+                "googlesheet": {
+                    "connectionId": "/subscriptions/c535ef07-abad-498a-a553-5ba74842bafb/resourceGroups/RG-GGI/providers/Microsoft.Web/connections/googlesheet",
+                    "connectionName": "googlesheet",
+                    "id": "/subscriptions/c535ef07-abad-498a-a553-5ba74842bafb/providers/Microsoft.Web/locations/southeastasia/managedApis/googlesheet"
+                },
+                "twitter": {
+                    "connectionId": "/subscriptions/c535ef07-abad-498a-a553-5ba74842bafb/resourceGroups/RG-GGI/providers/Microsoft.Web/connections/twitter",
+                    "connectionName": "twitter",
+                    "id": "/subscriptions/c535ef07-abad-498a-a553-5ba74842bafb/providers/Microsoft.Web/locations/southeastasia/managedApis/twitter"
+                }
+            }
+        }
+    }
+}
